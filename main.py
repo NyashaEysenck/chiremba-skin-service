@@ -63,6 +63,19 @@ async def root():
         "status": "ok"
     }
 
+@app.post("/test")
+async def test_endpoint(file: UploadFile = File(...)):
+    """Test endpoint for connectivity checks"""
+    try:
+        return JSONResponse(content={
+            "predicted_class": "test_success",
+            "confidence": 1.0,
+            "message": f"File received successfully: {file.filename}"
+        })
+    except Exception as e:
+        logger.error(f"Error in test endpoint: {str(e)}")
+        return JSONResponse(status_code=500, content={"detail": str(e)})
+
 @app.post("/skindisease_classification")
 async def skindisease_classification(file: UploadFile = File(...)):
     """
@@ -100,6 +113,7 @@ async def skindisease_classification(file: UploadFile = File(...)):
         return JSONResponse(content={
             "predicted_class": str(top_3_classes[0]),
             "confidence": top_3_confidences[0],
+            "model_used": "SkinNet-23M",
             "alternatives": [
                 {"class": top_3_classes[1], "confidence": top_3_confidences[1]},
                 {"class": top_3_classes[2], "confidence": top_3_confidences[2]}
